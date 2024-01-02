@@ -1,14 +1,13 @@
 # Runs sitemap hourly at minute 23, pings search engines
 23 * * * * RAILS_ENV=production /usr/local/bundle/bin/rake -f /opt/mastodon/Rakefile sitemap:refresh >> /var/log/cron.log 2>&1
 
-# Run tootctl media remove daily to remove old media
-0 1 * * * RAILS_ENV=production /opt/mastodon/bin/tootctl media remove --days 7 >> /var/log/cron.log 2>&1
+# Run these weekly to reduce database size
+0 0 * * 0 RAILS_ENV=production /opt/mastodon/bin/tootctl media remove >> /var/log/cron.log 2>&1
+0 0 * * 1 RAILS_ENV=production /opt/mastodon/bin/tootctl statuses remove >> /var/log/cron.log 2>&1
+0 0 * * 2 RAILS_ENV=production /opt/mastodon/bin/tootctl preview_cards remove >> /var/log/cron.log 2>&1
 
 # Run tootctl search deploy daily to refresh search indexes
-0 3 * * 0 RAILS_ENV=production /opt/mastodon/bin/tootctl search deploy >> /var/log/cron.log 2>&1
-
-# Run tootctl version every hour to ensure tootctl is running (checkable in logs)
-0 * * * * RAILS_ENV=production /opt/mastodon/bin/tootctl version >> /var/log/cron.log 2>&1
+0 3 * * * RAILS_ENV=production /opt/mastodon/bin/tootctl search deploy >> /var/log/cron.log 2>&1
 
 # Make a HEAD, GET, or a POST request to the following URL every hour 
 0 * * * * curl -fsS --retry 3 $BETTER_STACK_CRON >> /var/log/cron.log 2>&1
