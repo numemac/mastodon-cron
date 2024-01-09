@@ -3,8 +3,8 @@
 
 # Run these weekly to reduce database size
 0 0 * * 0 RAILS_ENV=production /opt/mastodon/bin/tootctl media remove >> /var/log/cron.log 2>&1
-0 0 * * 1 RAILS_ENV=production /opt/mastodon/bin/tootctl statuses remove >> /var/log/cron.log 2>&1
-0 0 * * 2 RAILS_ENV=production /opt/mastodon/bin/tootctl preview_cards remove >> /var/log/cron.log 2>&1
+0 0 * * 1 RAILS_ENV=production /opt/mastodon/bin/tootctl statuses remove --days 30 >> /var/log/cron.log 2>&1
+0 0 * * 2 RAILS_ENV=production /opt/mastodon/bin/tootctl preview_cards remove --days 30 >> /var/log/cron.log 2>&1
 
 # Run tootctl search deploy daily to refresh search indexes
 0 3 * * * RAILS_ENV=production /opt/mastodon/bin/tootctl search deploy >> /var/log/cron.log 2>&1
