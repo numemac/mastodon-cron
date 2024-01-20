@@ -1,5 +1,5 @@
 # Runs sitemap hourly at minute 23, pings search engines
-23 * * * * RAILS_ENV=production /usr/local/bundle/bin/rake -f /opt/mastodon/Rakefile sitemap:refresh >> /var/log/cron.log 2>&1
+# 23 * * * * RAILS_ENV=production /usr/local/bundle/bin/rake -f /opt/mastodon/Rakefile sitemap:refresh >> /var/log/cron.log 2>&1
 
 # Run these weekly to reduce database size
 0 0 * * 0 RAILS_ENV=production /opt/mastodon/bin/tootctl media remove >> /var/log/cron.log 2>&1
