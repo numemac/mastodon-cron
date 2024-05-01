@@ -9,3 +9,8 @@
 
 # Make a HEAD, GET, or a POST request to the following URL every hour 
 0 * * * * curl -fsS --retry 3 $BETTER_STACK_CRON >> /var/log/cron.log 2>&1
+
+# Do daily, weekly, and monthly database backups
+0 0 * * * BB_BUCKET=veganism-social-daily /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
+0 0 * * 0 BB_BUCKET=veganism-social-weekly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
+0 0 1 * * BB_BUCKET=veganism-social-monthly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
