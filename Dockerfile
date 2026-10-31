@@ -2,8 +2,8 @@ FROM auguryan/mastodon:latest
 
 USER root
 
-# install cron and s3cmd
-RUN apt-get update && apt-get install -y cron s3cmd
+# install cron, postgresql-client and s3cmd
+RUN apt-get update && apt-get install -y cron postgresql-client s3cmd
 
 # run crontab in container using timers.crontab file in this directory
 COPY mastodon.crontab /etc/cron.d/mastodon.crontab

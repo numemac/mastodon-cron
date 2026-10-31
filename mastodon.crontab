@@ -1,16 +1,19 @@
-# Runs sitemap hourly at minute 23, pings search engines
-# 23 * * * * RAILS_ENV=production /usr/local/bundle/bin/rake -f /opt/mastodon/Rakefile sitemap:refresh >> /var/log/cron.log 2>&1
-
 # Run these weekly to reduce database size
 0 0 * * 0 RAILS_ENV=production /opt/mastodon/bin/tootctl media remove >> /var/log/cron.log 2>&1
 0 0 * * 1 RAILS_ENV=production /opt/mastodon/bin/tootctl statuses remove --days 30 >> /var/log/cron.log 2>&1
-0 0 * * 2 RAILS_ENV=production /opt/mastodon/bin/tootctl preview_cards remove --days 30 >> /var/log/cron.log 2>&1
+0 0 * * 2 RAILS_ENV=production /opt/mastodon/bin/tootctl preview_cards remove --days 14 >> /var/log/cron.log 2>&1
 0 0 * * 3 RAILS_ENV=production /opt/mastodon/bin/tootctl search deploy >> /var/log/cron.log 2>&1
+0 0 * * 4 RAILS_ENV=production /opt/mastodon/bin/tootctl statuses remove --days 180 --clean_followed >> /var/log/cron.log 2>&1
 
 # Make a HEAD, GET, or a POST request to the following URL every hour 
 0 * * * * curl -fsS --retry 3 $BETTER_STACK_CRON >> /var/log/cron.log 2>&1
 
 # Do daily, weekly, and monthly database backups
 0 0 * * * BB_BUCKET=veganism-social-daily /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
-0 0 * * 0 BB_BUCKET=veganism-social-weekly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
-0 0 1 * * BB_BUCKET=veganism-social-monthly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
+# Do the weekly backup at 8am on Wednesday
+0 8 * * 0 BB_BUCKET=veganism-social-weekly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
+# Do the monthly backup at 4pm on the 2nd of the month
+0 16 2 * * BB_BUCKET=veganism-social-monthly /usr/local/bin/db-backup.sh >> /var/log/cron.log 2>&1
+
+# Runs sitemap hourly at minute 23, pings search engines
+# 23 * * * * RAILS_ENV=production /usr/local/bundle/bin/rake -f /opt/mastodon/Rakefile sitemap:refresh >> /var/log/cron.log 2>&1

@@ -16,31 +16,24 @@ for var in "${required_vars[@]}"; do
 done
 
 s3cmd_a() {
-    s3cmd --access_key="$BB_KEY" --secret_key "$BB_SECRET" --host-bucket="$BB_HOST" "$@"
+    HOST_BUCKET="%(bucket)s.$BB_HOST"
+    echo "s3cmd --access_key=$BB_KEY --secret_key=$BB_SECRET --host=$BB_HOST --host-bucket=$HOST_BUCKET ..."
+    s3cmd --access_key="$BB_KEY" --secret_key="$BB_SECRET" --host="$BB_HOST" --host-bucket="$HOST_BUCKET" "$@"
 }
 
 BACKUP_DIR="/backups"
-BACKUP_FILE="$BACKUP_DIR/$DB_NAME-$BB_BUCKET"
+FILE_EXT="$BB_BUCKET.sql.gz"
+UNIX_TIMESTAMP=$(date +%s)
+BACKUP_FILE="$BACKUP_DIR/$UNIX_TIMESTAMP.$FILE_EXT"
 
-# Remove the previous local backup copy
-rm -f "$BACKUP_FILE"
+# remove all previous backups in local dir with the same extension
+rm -f "$BACKUP_DIR"/*."$FILE_EXT"
 
-# Dump the database using the password
-PGPASSWORD=$DB_PASS pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" | gzip > "$BACKUP_FILE"
+# Dump the database using the password, output progress to std out, and compress the output
+PGPASSWORD=$DB_PASS pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -v | gzip > "$BACKUP_FILE"
 
 # Upload the backup to Backblaze
 s3cmd_a put "$BACKUP_FILE" "s3://$BB_BUCKET"
-
-# Keep the 3 most recent backups
-backups=$(s3cmd_a ls "s3://$BB_BUCKET")
-file_names=$(echo "$backups" | awk '{print $4}' | grep "$DB_NAME")
-file_count=$(echo "$file_names" | wc -l)
-if [ "$file_count" -gt 3 ]; then
-    old_files=$(echo "$file_names" | head -n -"$file_count")
-    for old_file in $old_files; do
-        s3cmd_a del "$old_file"
-    done
-fi
 
 # Exit without error
 exit 0
