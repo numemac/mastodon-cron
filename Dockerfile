@@ -1,4 +1,5 @@
-FROM auguryan/mastodon:latest
+ARG MASTODON_IMAGE_TAG
+FROM auguryan/mastodon:${MASTODON_IMAGE_TAG}
 
 USER root
 
